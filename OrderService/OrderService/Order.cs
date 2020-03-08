@@ -16,10 +16,14 @@ namespace OrderService
 
         public string Company { get; set; }
 
+        public const float TAXRATE = 0.25f;
+
         public void AddLine(OrderLine orderLine)
         {
             _orderLines.Add(orderLine);
         }
+
+        //PARENT RECIEPT CLASS
 
         public string GenerateReceipt()
         {
@@ -27,30 +31,13 @@ namespace OrderService
             var result = new StringBuilder($"Order receipt for '{Company}'{Environment.NewLine}");
             foreach (var line in _orderLines)
             {
-                var thisAmount = 0d;
-                switch (line.Product.Price)
-                {
-                    case Product.Prices.OneThousand:
-                        if (line.Quantity >= 5)
-                            thisAmount += line.Quantity * line.Product.Price * .9d;
-                        else
-                            thisAmount += line.Quantity * line.Product.Price;
-                        break;
-                    case Product.Prices.TwoThousand:
-                        if (line.Quantity >= 3)
-                            thisAmount += line.Quantity * line.Product.Price * .8d;
-                        else
-                            thisAmount += line.Quantity * line.Product.Price;
-                        break;
-                }
-
                 result.AppendLine(
-                    $"\t{line.Quantity} x {line.Product.ProductType} {line.Product.ProductName} = {thisAmount:C}");
-                totalAmount += thisAmount;
+                    $"\t{line.Quantity} x {line.Product.ProductType} {line.Product.ProductName} = {line.LineTotalPrice:C}");
+                totalAmount += line.LineTotalPrice;
             }
 
             result.AppendLine($"Subtotal: {totalAmount:C}");
-            var totalTax = totalAmount * Product.Prices.TaxRate;
+            var totalTax = totalAmount * TAXRATE;
             result.AppendLine($"MVA: {totalTax:C}");
             result.Append($"Total: {totalAmount + totalTax:C}");
             return result.ToString();
@@ -65,33 +52,16 @@ namespace OrderService
                 result.Append("<ul>");
                 foreach (var line in _orderLines)
                 {
-                    var thisAmount = 0d;
-                    switch (line.Product.Price)
-                    {
-                        case Product.Prices.OneThousand:
-                            if (line.Quantity >= 5)
-                                thisAmount += line.Quantity * line.Product.Price * .9d;
-                            else
-                                thisAmount += line.Quantity * line.Product.Price;
-                            break;
-                        case Product.Prices.TwoThousand:
-                            if (line.Quantity >= 3)
-                                thisAmount += line.Quantity * line.Product.Price * .8d;
-                            else
-                                thisAmount += line.Quantity * line.Product.Price;
-                            break;
-                    }
-
                     result.Append(
-                        $"<li>{line.Quantity} x {line.Product.ProductType} {line.Product.ProductName} = {thisAmount:C}</li>");
-                    totalAmount += thisAmount;
+                        $"<li>{line.Quantity} x {line.Product.ProductType} {line.Product.ProductName} = {line.LineTotalPrice:C}</li>");
+                    totalAmount += line.LineTotalPrice;
                 }
 
                 result.Append("</ul>");
             }
 
             result.Append($"<h3>Subtotal: {totalAmount:C}</h3>");
-            var totalTax = totalAmount * Product.Prices.TaxRate;
+            var totalTax = totalAmount * TAXRATE;
             result.Append($"<h3>MVA: {totalTax:C}</h3>");
             result.Append($"<h2>Total: {totalAmount + totalTax:C}</h2>");
             result.Append("</body></html>");
