@@ -1,4 +1,7 @@
-﻿namespace OrderService
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace OrderService
 {
     public class OrderLine
     {
@@ -6,42 +9,50 @@
         {
             Product = product;
             Quantity = quantity;
-            Discount = DetermineDiscount(this);
+            QualifyingDiscounts = QualifyDiscounts(product, quantity).ToList();
             LineTotalPrice = CalculateLineTotal();
         }
-
         public Product Product { get; }
 
         public int Quantity { get; }
 
         public float LineTotalPrice { get; set; }
 
-        public Discount Discount { get; set; }
+        public List<Discount> QualifyingDiscounts { get; set; }
 
         private float CalculateLineTotal()
         {
-            return Product.Price * Quantity * Discount.Modifier;
+            if (!QualifyingDiscounts.Any())
+            {
+                return Product.Price * Quantity;
+            }
+
+            var bestDiscount = QualifyingDiscounts.Min(x => x.Modifier);
+
+            return Product.Price * Quantity * bestDiscount;
         }
 
-        private Discount DetermineDiscount(OrderLine orderLine)
+        public IEnumerable<Discount> QualifyDiscounts(Product product, int quantity)
         {
-            var unmodifiedLineTotal = orderLine.Product.Price * orderLine.Quantity;
+            var discounts = new List<Discount>();
 
-            if (unmodifiedLineTotal >= 6000)
+            discounts.Add(new Discount
             {
-                return new Discount(DiscountType.TwentyPercentOff, 0.8f);
-            }
+                Type = DiscountType.TenPercentOff,
+                Condition = product.Price >= 1000 && quantity >= 5,
+                Modifier = 0.9f
+            });
 
-            if (unmodifiedLineTotal >= 5000)
+            discounts.Add(new Discount
             {
-                return new Discount(DiscountType.TenPercentOff, 0.9f);
-            }
+                Type = DiscountType.TenPercentOff,
+                Condition = product.Price >= 2000 && quantity >= 3,
+                Modifier = 0.8f
+            });
 
-            else return new Discount();
+            // Add any further discounts here
+
+            return discounts.Where(discount => discount.Condition);
         }
-
-        //check available discounts, apply discount
-        //'combinable' on discount
-        //list of discounts with thier conditions
     }
 }

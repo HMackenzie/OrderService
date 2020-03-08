@@ -16,10 +16,11 @@ namespace OrderService
         {
             Type = type;
             Modifier = modifier;
+
         }
 
         public DiscountType Type { get; set; }
-
+        public bool Condition { get; set; }
         public float Modifier { get; set; }
     }
 }

@@ -24,7 +24,6 @@ namespace OrderService
         }
 
         //PARENT RECIEPT CLASS
-
         public string GenerateReceipt()
         {
             var totalAmount = 0d;

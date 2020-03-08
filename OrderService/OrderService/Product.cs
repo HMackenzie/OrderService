@@ -8,11 +8,8 @@
             ProductName = productName;
             Price = price;
         }
-
         public string ProductType { get; }
         public string ProductName { get; }
         public int Price { get; }
-
-
     }
 }
