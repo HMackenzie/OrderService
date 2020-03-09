@@ -14,7 +14,8 @@ namespace OrderService.Tests
         {
             var order = new Order("Test Company");
             order.AddLine(new OrderLine(MotorBasic, 1));
-            var actual = order.GenerateHtmlReceipt();
+            var receipt = new HtmlReceipt(order);
+            var actual = receipt.Body;
 
             var expected =
                 $"<html><body><h1>Order receipt for 'Test Company'</h1><ul><li>1 x Car Insurance Basic = {1000:C}</li></ul><h3>Subtotal: {1000:C}</h3><h3>MVA: {250:C}</h3><h2>Total: {1250:C}</h2></body></html>";
@@ -27,7 +28,8 @@ namespace OrderService.Tests
         {
             var order = new Order("Test Company");
             order.AddLine(new OrderLine(MotorSuper, 1));
-            var actual = order.GenerateHtmlReceipt();
+            var receipt = new HtmlReceipt(order);
+            var actual = receipt.Body;
 
             var expected =
                 $"<html><body><h1>Order receipt for 'Test Company'</h1><ul><li>1 x Car Insurance Super = {2000:C}</li></ul><h3>Subtotal: {2000:C}</h3><h3>MVA: {500:C}</h3><h2>Total: {2500:C}</h2></body></html>";
@@ -40,7 +42,8 @@ namespace OrderService.Tests
         {
             var order = new Order("Test Company");
             order.AddLine(new OrderLine(MotorBasic, 1));
-            var actual = order.GenerateReceipt();
+            var receipt = new PlaintextReceipt(order);
+            var actual = receipt.Body;
             var expected =
                 $"Order receipt for 'Test Company'\r\n\t1 x Car Insurance Basic = {1000:C}\r\nSubtotal: {1000:C}\r\nMVA: {250:C}\r\nTotal: {1250:C}";
 
@@ -52,7 +55,8 @@ namespace OrderService.Tests
         {
             var order = new Order("Test Company");
             order.AddLine(new OrderLine(MotorSuper, 1));
-            var actual = order.GenerateReceipt();
+            var receipt = new PlaintextReceipt(order);
+            var actual = receipt.Body;
             var expected =
                 $"Order receipt for 'Test Company'\r\n\t1 x Car Insurance Super = {2000:C}\r\nSubtotal: {2000:C}\r\nMVA: {500:C}\r\nTotal: {2500:C}";
 

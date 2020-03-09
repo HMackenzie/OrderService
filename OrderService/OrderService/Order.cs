@@ -1,70 +1,59 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace OrderService
 {
+    /// <summary>
+    /// Represents an order in the system.
+    /// </summary>
     public class Order
     {
-        private readonly IList<OrderLine> _orderLines = new List<OrderLine>();
+        /// <summary>
+        /// The lines of the order.
+        /// </summary>
+        public readonly IList<OrderLine> OrderLines = new List<OrderLine>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Order"/> class.
+        /// </summary>
+        /// <param name="company"></param>
         public Order(string company)
         {
             Company = company;
         }
 
+        /// <summary>
+        /// Gets or sets the name of the company associated with the order.
+        /// </summary>
         public string Company { get; set; }
 
+        /// <summary>
+        /// The taxrate to use for any tax calculations.
+        /// </summary>
         public const float TAXRATE = 0.25f;
 
+        /// <summary>
+        /// Gets the total tax payable for the order.
+        /// </summary>
+        public float TaxPayable => Subtotal * TAXRATE;
+
+        /// <summary>
+        /// Gets the subtotal for the order.
+        /// </summary>
+        public float Subtotal => OrderLines.Sum(order => order.LineTotal);
+
+        /// <summary>
+        /// Gets the total balance payable for the order.
+        /// </summary>
+        public float TotalPayable => Subtotal + TaxPayable;
+        
+        /// <summary>
+        /// Adds a new line to the order.
+        /// </summary>
+        /// <param name="orderLine"></param>
         public void AddLine(OrderLine orderLine)
         {
-            _orderLines.Add(orderLine);
-        }
-
-        //PARENT RECIEPT CLASS
-        public string GenerateReceipt()
-        {
-            var totalAmount = 0d;
-            var result = new StringBuilder($"Order receipt for '{Company}'{Environment.NewLine}");
-            foreach (var line in _orderLines)
-            {
-                result.AppendLine(
-                    $"\t{line.Quantity} x {line.Product.ProductType} {line.Product.ProductName} = {line.LineTotalPrice:C}");
-                totalAmount += line.LineTotalPrice;
-            }
-
-            result.AppendLine($"Subtotal: {totalAmount:C}");
-            var totalTax = totalAmount * TAXRATE;
-            result.AppendLine($"MVA: {totalTax:C}");
-            result.Append($"Total: {totalAmount + totalTax:C}");
-            return result.ToString();
-        }
-
-        public string GenerateHtmlReceipt()
-        {
-            var totalAmount = 0d;
-            var result = new StringBuilder($"<html><body><h1>Order receipt for '{Company}'</h1>");
-            if (_orderLines.Any())
-            {
-                result.Append("<ul>");
-                foreach (var line in _orderLines)
-                {
-                    result.Append(
-                        $"<li>{line.Quantity} x {line.Product.ProductType} {line.Product.ProductName} = {line.LineTotalPrice:C}</li>");
-                    totalAmount += line.LineTotalPrice;
-                }
-
-                result.Append("</ul>");
-            }
-
-            result.Append($"<h3>Subtotal: {totalAmount:C}</h3>");
-            var totalTax = totalAmount * TAXRATE;
-            result.Append($"<h3>MVA: {totalTax:C}</h3>");
-            result.Append($"<h2>Total: {totalAmount + totalTax:C}</h2>");
-            result.Append("</body></html>");
-            return result.ToString();
+            OrderLines.Add(orderLine);
         }
     }
 }
